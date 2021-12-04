@@ -1,9 +1,11 @@
 """
     Top2Vec module.
 
-    Source code adapted from https://github.com/ddangelov/Top2Vec and https://github.com/MaartenGr/BERTopic
+    Source code adapted from https://github.com/ddangelov/Top2Vec and https://github.com/MaartenGr/BERTopic.
 """
 import re
+
+import nltk
 
 import umap
 import hdbscan
@@ -25,6 +27,9 @@ from nltk.stem import PorterStemmer
 from sentence_transformers import SentenceTransformer
 
 
+
+# Download the necesary resources from nltk
+nltk.download('punkt')
 
 # Declare constants
 NAME = "top2vec"
@@ -95,7 +100,29 @@ def process_sentence(sentence) -> List[str]:
 
 class Top2Vec:
     """
-        
+        Top2Vec
+
+        Creates jointly embedded topic and document embeddings.
+
+        Args
+        ----------
+        embedding_model: string (Optional, default "all-MiniLM-L6-v2")
+                name of a SentenceTransformers pretrained model.
+
+        umap_model: umap.UMAP (Optional, default None)
+                umap model for dimensionality reduction.
+
+        hdbscan_model: hdbscan.HDBSCAN (Optional, default None)
+                hdbscan model for clustering of embeddings.
+
+        vectorizer_model: TfidfVectorizer (Optional, default None)
+                vectorizer model for obtaining text embeddings based on term frequency - inverse document frequency (tf-idf).
+
+        seed: int (Optional, default SEED)
+                seed for reproducibility of experiment results
+
+        logger: logging.Logger
+                logging.Logger object to log messages.
     """
     def __init__(self,
                  embedding_model: str = "all-MiniLM-L6-v2",
@@ -143,8 +170,25 @@ class Top2Vec:
         self.vectorizer_model.build_analyzer()
         
         
-    def fit(self, documents: Union[List[str], pd.Series]):
+    def fit(self, documents: Union[List[str], pd.Series]) -> None:
         """
+            Method to apply Top2Vec algorithm to input documents. Top2Vec algorithm pipline
+            consists of the following steps:
+
+            1) Obtain document embeddings
+            2) Perform dimensionality reduction on the document embeddings using UMAP
+            3) Cluster the compressed document embeddings with HDBSCAN
+            4) Create topic vectors
+            5) Deduplicate topics using DBSCAN
+
+            Args
+            ----------
+            documents: list or pd.Series of strings
+                    input text corpus.
+
+            Returns
+            ----------
+            None           
         """
         # Validate documents
         if not (isinstance(documents, list) or isinstance(documents, pd.Series)):
@@ -278,13 +322,13 @@ class Top2Vec:
         return np.array(doc_top), np.array(doc_dist)
     
     
-    def calculate_topic_sizes(self) -> pd.Series:
+    def calculate_topic_sizes(self) -> pd.DataFrame:
         """
             Method to calculate the topic sizes.
 
             Returns
             ----------
-            topic_sizes: pd.Series
+            topic_sizes: pd.DataFrame
                     number of documents belonging to each topic.
         """
         return pd.Series(self.doc_top).value_counts() \
@@ -309,18 +353,47 @@ class Top2Vec:
         
     def get_results(self) -> pd.DataFrame:
         """
+            Method to get the clustering results.
+
+            Returns
+            ----------
+            clustering results: pd.DataFrame
         """
         return self.results
         
         
     def get_summary(self, top_n_documents: int = 10) -> pd.DataFrame:
         """
+            Method to get the summary of each topic.
+
+            Args
+            ----------
+            top_n_documents: int (Optional, default 10)
+                    number of documents to include in each topic summary.
+
+            Returns
+            ----------
+            summary: pd.DataFrame
+                    top n documents of each topic
         """
         return self.results.groupby("topic").head(top_n_documents).reset_index(drop=True)
     
     
-    def get_top_n_terms(self, top_n_terms: int = 15):
+    def get_top_n_terms(self, top_n_terms: int = 15) -> pd.DataFrame:
         """
+            Method to get the top n terms in each topic based on c-tf-idf scores
+
+            https://maartengr.github.io/BERTopic/api/ctfidf.html
+
+            Args
+            ----------
+            top_n_terms: int (Optional, default 15)
+                    number of terms to include for each topic.
+
+            Returns
+            ----------
+            top n terms: pd.DataFrame
+                    top n terms of each topic
         """
         # Aggregate the sentences by topic
         docs_by_topic = self.results.groupby("topic", as_index = False).agg({"document": " ".join})
