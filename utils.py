@@ -456,7 +456,7 @@ class Top2Vec:
         ).toarray()
 
         # Get vocabulary
-        vocab = self.vectorizer_model.get_feature_names()
+        vocab = self.vectorizer_model.get_feature_names_out()
 
         # Generate the top n words per topic
         return pd.DataFrame(
