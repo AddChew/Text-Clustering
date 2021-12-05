@@ -28,7 +28,7 @@ $ jupyter notebook
 - From the Home Page of the Jupyter Notebook, navigate to and open Text-Clustering-with-Top2Vec.ipynb.
 - Run all the cells in the notebook from top to bottom (Need to execute this step to view the interactive visualizations).
 #### To view the HTML version of the clustering results:
-- Open Text-Clustering-with-Top2Vec.html from text-clustering folder in your browser.
+- Open Text-Clustering-with-Top2Vec.html in your browser.
 #### To view the helper scripts used in Text-Clustering-with-Top2Vec.ipynb:
 - Navigate to and open utils.py.
 
