@@ -37,7 +37,7 @@ Topic-Modelling-with-Top2Vec.ipynb
 > - Jupyter Notebook containing the clustering results
 > 
 Topic-Modelling-with-Top2Vec.html
-> - HTML version of Text-Clustering-with-Top2Vec.ipynb
+> - HTML version of Topic-Modelling-with-Top2Vec.ipynb
 > 
 utils.py
 > - Contains helper classes and functions for clustering the news dataset
