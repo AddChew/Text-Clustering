@@ -142,45 +142,45 @@ def top_n_terms(corpus: Union[List, pd.Series], n: int = 50) -> pd.DataFrame:
 
 
 
-def get_topic_info(topNterms: pd.DataFrame, summary: pd.DataFrame, topic: int) -> None:
-    """
-        Function to plot the top n terms and print out the top 10 sentences from a topic.
+# def get_topic_info(topNterms: pd.DataFrame, summary: pd.DataFrame, topic: int) -> None:
+#     """
+#         Function to plot the top n terms and print out the top 10 sentences from a topic.
 
-        Args
-        ----------
-        topNterms: pd.DataFrame
-                top n terms from each topic.
+#         Args
+#         ----------
+#         topNterms: pd.DataFrame
+#                 top n terms from each topic.
 
-        summary: pd.DataFrame
-                top 10 sentences from each topic.
+#         summary: pd.DataFrame
+#                 top 10 sentences from each topic.
 
-        topic: int
-                topic number.
+#         topic: int
+#                 topic number.
 
-        Returns
-        ----------
-        None
-    """
-    query = f"topic == {topic}"
+#         Returns
+#         ----------
+#         None
+#     """
+#     query = f"topic == {topic}"
     
-    # Get summary for topic
-    topic_summary = summary.query(query)
+#     # Get summary for topic
+#     topic_summary = summary.query(query)
 
-    # Get top n terms for topic
-    top_n_terms_topic = topNterms.query(query).sort_values(by = "score", ascending = True)
+#     # Get top n terms for topic
+#     top_n_terms_topic = topNterms.query(query).sort_values(by = "score", ascending = True)
 
-    # Visualize the top 15 terms in the topic
-    fig = px.bar(top_n_terms_topic, 
-                 x="score", y="term",
-                 orientation="h",
-                 title=f"<b>Top 15 Terms in Topic {topic}<b>",
-                 labels={"term": "Term", "score": "TF-IDF Score"})
-    fig.show()
+#     # Visualize the top 15 terms in the topic
+#     fig = px.bar(top_n_terms_topic, 
+#                  x="score", y="term",
+#                  orientation="h",
+#                  title=f"<b>Top 15 Terms in Topic {topic}<b>",
+#                  labels={"term": "Term", "score": "TF-IDF Score"})
+#     fig.show()
 
-    # Print out the top 10 sentences most representative of the topic
-    print("\033[1m" + "Top 10 Sentences:\n" + "\033[0m")
-    for doc in topic_summary.document:
-        print(doc + "\n")
+#     # Print out the top 10 sentences most representative of the topic
+#     print("\033[1m" + "Top 10 Sentences:\n" + "\033[0m")
+#     for doc in topic_summary.document:
+#         print(doc + "\n")
 
 
 
@@ -289,6 +289,8 @@ class Top2Vec:
         
         if isinstance(documents, pd.Series):
             self.results = documents.to_frame(name = columns[0])
+
+        self.summary, self.top_n_terms = None, None
         
         # Obtain document embeddings
         logger.info("Obtaining document embeddings.")
@@ -473,7 +475,8 @@ class Top2Vec:
             summary: pd.DataFrame
                     top n documents of each topic
         """
-        return self.results.groupby("topic").head(top_n_documents).reset_index(drop=True)
+        self.summary = self.results.groupby("topic").head(top_n_documents).reset_index(drop=True) if self.summary is None else self.summary
+        return self.summary
     
     
     def get_top_n_terms(self, top_n_terms: int = 15) -> pd.DataFrame:
@@ -492,25 +495,123 @@ class Top2Vec:
             top n terms: pd.DataFrame
                     top n terms of each topic
         """
-        # Aggregate the sentences by topic
-        docs_by_topic = self.results.groupby("topic", as_index = False).agg({"document": " ".join})
+        if self.top_n_terms is None:
+            # Aggregate the sentences by topic
+            docs_by_topic = self.results.groupby("topic", as_index = False).agg({"document": " ".join})
 
-        # Compute document term matrix
-        document_term_matrix = self.vectorizer_model.fit_transform(
-            docs_by_topic.document
-        ).toarray()
+            # Compute document term matrix
+            document_term_matrix = self.vectorizer_model.fit_transform(
+                docs_by_topic.document
+            ).toarray()
 
-        # Get vocabulary
-        vocab = self.vectorizer_model.get_feature_names_out()
+            # Get vocabulary
+            vocab = self.vectorizer_model.get_feature_names_out()
 
-        # Generate the top n words per topic
-        return pd.DataFrame(
-            [(doc, vocab[word], document_term_matrix[doc][word]) 
-            for doc in docs_by_topic["topic"] 
-            for word in document_term_matrix.argsort(axis=1)[:, -top_n_terms:][doc][::-1]],
-            columns = ["topic", "term", "score"])
-            
+            # Generate the top n words per topic
+            self.top_n_terms =  pd.DataFrame(
+                [(doc, vocab[word], document_term_matrix[doc][word]) 
+                for doc in docs_by_topic["topic"] 
+                for word in document_term_matrix.argsort(axis=1)[:, -top_n_terms:][doc][::-1]],
+                columns = ["topic", "term", "score"])
         
+        return self.top_n_terms
+
+
+    def get_topic_info(self, topic: int) -> None:
+        """
+            Method to plot the top n terms and print out the top 10 sentences from a topic.
+
+            Args
+            ----------
+            topic: int
+                    topic number.
+
+            Returns
+            ----------
+            None
+        """
+        # Validate topic
+        if not isinstance(topic, int):
+            raise TypeError("topic takes in an integer as argument.")
+
+        topics = self.get_topic_sizes().topic
+        if topic not in topics:
+            raise ValueError("topic does not exist.")
+
+        query = f"topic == {topic}"
+        
+        # Get summary for topic
+        topic_summary = self.summary.query(query)
+
+        # Get top n terms for topic
+        top_n_terms_topic = self.top_n_terms.query(query).sort_values(by = "score", ascending = True)
+
+        # Visualize the top 15 terms in the topic
+        fig = px.bar(top_n_terms_topic, 
+                    x="score", y="term",
+                    orientation="h",
+                    title=f"<b>Top 15 Terms in Topic {topic}<b>",
+                    labels={"term": "Term", "score": "TF-IDF Score"})
+        fig.show()
+
+        # Print out the top 10 sentences most representative of the topic
+        print("\033[1m" + "Top 10 Sentences:\n" + "\033[0m")
+        for doc in topic_summary.document:
+            print(doc + "\n")
+
+
+    def get_topics_info(self) -> None:
+        """
+            Method to plot the intertopic distance map of the topics.
+
+            Returns
+            ----------
+            None
+        """
+        # Compress the embeddings to 2D with UMAP
+        n_neighbors = len(self.topic_vectors) - 1
+        umap_model = umap.UMAP(
+            n_neighbors=n_neighbors, 
+            n_components=2, 
+            metric="cosine",
+            random_state=self.seed
+            )
+
+        embeddings = umap_model.fit(self.topic_vectors).embedding_
+        topic_sizes = self.get_topic_sizes()
+
+        # Get the top 5 terms from each topic and join them into a single string per topic
+        top_n_terms = self.get_top_n_terms().groupby("topic") \
+                                            .head(5) \
+                                            .groupby("topic", as_index = False) \
+                                            .agg({"term": " | ".join})
+
+        # Join the embeddings dataframe with the topic_sizes and top _n_terms dataframes
+        data = pd.DataFrame(embeddings, columns = ["x", "y"]) \
+                            .merge(topic_sizes, left_index = True, right_index = True) \
+                            .merge(top_n_terms, on = "topic") \
+                            .rename(columns = {"topic": "Topic", "count": "Size", "term": "Terms"})
+
+        # Convert Topic column to string
+        data.Topic = data.Topic.astype(str)
+
+        # Visualize the topics with an intertopic distance map
+        fig = px.scatter(data, x="x", y="y",
+                        color="Topic", size="Size",
+                        hover_data={
+                            "Topic": True, 
+                            "x": False, 
+                            "y": False, 
+                            "Size": True, 
+                            "Terms": True
+                            },
+                        title="<b>Intertopic Distance Map<b>")
+
+        fig.update_layout(xaxis_title=None, yaxis_title=None, 
+                          xaxis_showticklabels=False, yaxis_showticklabels=False)
+        fig.show()
+
+            
     @staticmethod
     def l2_normalize(vectors: np.ndarray) -> np.ndarray:
         """
