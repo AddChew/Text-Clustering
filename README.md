@@ -25,25 +25,25 @@ $ jupyter notebook
 ```
 ## Viewing Instructions
 #### To view the Jupyter Notebook version of the clustering results:
-- From the Home Page of Jupyter Notebook, navigate to and open Topic-Modelling-with-Top2Vec.ipynb.
+- From the Home Page of the Jupyter Notebook, navigate to and open Text-Clustering-with-Top2Vec.ipynb.
 - Run all the cells in the notebook from top to bottom (Need to execute this step to view the interactive visualizations).
 #### To view the HTML version of the clustering results:
-- Open Topic-Modelling-with-Top2Vec.html in your browser.
+- Open Text-Clustering-with-Top2Vec.html from text-clustering folder in your browser.
 #### To view the helper scripts used in Text-Clustering-with-Top2Vec.ipynb:
 - Navigate to and open utils.py.
 
 ## Files
-Topic-Modelling-with-Top2Vec.ipynb
+Text-Clustering-with-Top2Vec.ipynb
 > - Jupyter Notebook containing the clustering results
 > 
-Topic-Modelling-with-Top2Vec.html
+Text-Clustering-with-Top2Vec.html
 > - HTML version of Text-Clustering-with-Top2Vec.ipynb
 > 
 utils.py
 > - Contains helper classes and functions for clustering the news dataset
 > 
 requirements.txt
-> - Contains the list of dependencies required to run Topic-Modelling-with-Top2Vec.ipynb and utils.py
+> - Contains the list of dependencies required to run Text-Clustering-with-Top2Vec.ipynb and utils.py
 > 
 README.md
 > - Contains the instructions for viewing the clustering results
