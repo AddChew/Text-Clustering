@@ -6,7 +6,6 @@ plotly==4.14.2
 scikit_learn==1.0.1
 sentence_transformers==2.1.0
 transformers==4.12.5
-umap==0.1.1
 umap_learn[plot]==0.5.2
 ipywidgets==7.6.5
 notebook==6.4.6
