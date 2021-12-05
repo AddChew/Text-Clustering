@@ -570,7 +570,7 @@ class Top2Vec:
         fig.show()
 
 
-    def predict(self, documents: Union[List[str], pd.Series], threshold: float = 0.5, batch_size: int = 64) -> pd.DataFrame:
+    def predict(self, documents: Union[List[str], pd.Series], threshold: float = 0.3, batch_size: int = 64) -> pd.DataFrame:
         """
             Method to predict which topic each document belongs to based on the
             fitted topic model
