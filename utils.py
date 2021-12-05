@@ -580,7 +580,7 @@ class Top2Vec:
             documents: list or pd.Series of strings
                     input text corpus.
 
-            threshold: float (Optional, default 0.5)
+            threshold: float (Optional, default 0.3)
                     minimum threshold for a document to belong to a topic 
 
             batch_size: int (Optional, default 64)
