@@ -29,7 +29,7 @@ $ jupyter notebook
 - Run all the cells in the notebook from top to bottom (Need to execute this step to view the interactive visualizations).
 #### To view the HTML version of the clustering results:
 - Open Topic-Modelling-with-Top2Vec.html in your browser.
-#### To view the helper scripts used in Text-Clustering-with-Top2Vec.ipynb:
+#### To view the helper scripts used in Topic-Modelling-with-Top2Vec.ipynb:
 - Navigate to and open utils.py.
 
 ## Files
