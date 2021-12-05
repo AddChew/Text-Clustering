@@ -235,7 +235,7 @@ class Top2Vec:
             None           
         """
         # Validate documents
-        if not (isinstance(documents, list) or isinstance(documents, pd.Series)):
+        if not isinstance(documents, (list, pd.Series)):
             raise TypeError("documents need to a list or pandas series of strings.")
             
         if not all(isinstance(document, str) for document in documents):
@@ -490,7 +490,7 @@ class Top2Vec:
         """
         # Validate topic
         if not isinstance(topic, int):
-            raise TypeError("topic takes in an integer as argument.")
+            raise TypeError("topic needs to be an integer.")
 
         topics = self.get_topic_sizes().topic
         if topic not in topics:
@@ -569,7 +569,61 @@ class Top2Vec:
                           xaxis_showticklabels=False, yaxis_showticklabels=False)
         fig.show()
 
+
+    def predict(self, documents: Union[List[str], pd.Series], threshold: float = 0.5, batch_size: int = 64) -> pd.DataFrame:
+        """
+            Method to predict which topic each document belongs to based on the
+            fitted topic model
+
+            Args
+            ----------
+            documents: list or pd.Series of strings
+                    input text corpus.
+
+            threshold: float (Optional, default 0.5)
+                    minimum threshold for a document to belong to a topic 
+
+            batch_size: int (Optional, default 64)
+                    number of documents passed to the model per iteration.
+
+            Returns
+            ----------
+            prediction results: pd.DataFrame
+                    the predicted topic for each document           
+        """
+        # Validate documents
+        if not isinstance(documents, (list, pd.Series)):
+            raise TypeError("documents need to a list or pandas series of strings.")
             
+        if not all(isinstance(document, str) for document in documents):
+            raise TypeError("documents need to a list or pandas series of strings.")
+
+        # Validate threshold
+        if not isinstance(threshold, (float, int)):
+            raise TypeError("threshold needs to be an int or a float.")
+
+        if not (0 <= threshold <= 1):
+            raise ValueError("threshold needs to between 0 and 1.")
+
+        # Get document emebddings
+        document_embeddings = self.embedding_model.encode(documents,
+                                                          convert_to_numpy = True,
+                                                          normalize_embeddings = True)
+
+        # Calculate cosine similarity wt=ith topic vectors
+        doc_top, doc_dist = [], []
+        for start_index in range(0, len(document_embeddings), batch_size):
+            res = np.inner(document_embeddings[start_index: start_index + batch_size], 
+                           self.topic_vectors)
+            doc_top.extend(np.argmax(res, axis = 1))
+            doc_dist.extend(np.max(res, axis = 1))
+        
+        # Filter out documents that are below the threshold and replace their topic wth -1
+        doc_top = [top if dist >= threshold else -1 for top, dist in zip(np.array(doc_top), np.array(doc_dist))]
+
+        return pd.DataFrame({"document": documents, "topic": doc_top})
+    
+  
     @staticmethod
     def l2_normalize(vectors: np.ndarray) -> np.ndarray:
         """
