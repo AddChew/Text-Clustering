@@ -2,7 +2,7 @@
 This project groups the news in the provided news dataset to various clusters using unsupervised learning.
 
 ## Installation Instructions
-The steps here are required only if you want to view/run the Jupyter Notebook (i.e. .ipynb and .py files) on your local machine. If not, you can just proceed to ***Viewing Instructions: To view the HTML version of the analyis results***, which does not require any prior setup.
+The steps here are required only if you want to view/run the Jupyter Notebook (i.e. .ipynb and .py files) on your local machine. If not, you can just proceed to ***Viewing Instructions: To view the HTML version of the clustering results***, which does not require any prior setup.
 #### To run the scripts on your local machine (Assumes that you already have an existing anaconda (Windows/Mac) or conda installation (Linux), with Python installed):
 1. Launch Anaconda Prompt (Windows/Mac) / Terminal (Linux).
 2. Navigate to Text-Clustering folder (Command below assumes that you downloaded and extracted the Text-Clustering folder to your downloads folder).
