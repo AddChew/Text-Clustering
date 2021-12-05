@@ -98,6 +98,47 @@ def process_sentence(sentence) -> List[str]:
 
 
 
+def top_n_terms(corpus: Union[List, pd.Series], n: int = 50) -> pd.DataFrame:
+    """
+        Function to extract the top n terms from a corpus based on tf-idf scores
+
+        Args
+        ----------
+        corpus: list or pandas series of strings
+                input corpus.
+
+        n: int (Optional, default 50)
+                number of terms to return
+
+        Returns
+        ----------
+        top n terms: pd.DataFrame
+                top n unigrams and bigrams from the corpus
+    """
+    # Initialize tf-idf vectorizer
+    vectorizer = TfidfVectorizer(analyzer = process_sentence)
+    vectorizer.build_analyzer()
+    
+    # Compute document term matrix
+    document_term_matrix = vectorizer.fit_transform(corpus).toarray()
+    
+    # Get vocabulary
+    vocab = vectorizer.get_feature_names_out()
+    
+    # Calculate the average tf-idf score for each term
+    avg_scores = document_term_matrix.mean(axis = 0)
+    
+    # Sort the scores and get the index of the top n scores
+    top_n_indexes = avg_scores.argsort()[-n:][::-1]
+    
+    # Store the results into a dataframe
+    return pd.DataFrame(
+        [(vocab[idx], avg_scores[idx]) for idx in top_n_indexes],
+        columns = ["term", "score"],
+    ).sort_values(by = ["score"], ascending = True, ignore_index = True)
+
+
+
 class Top2Vec:
     """
         Top2Vec
