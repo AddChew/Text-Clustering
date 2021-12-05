@@ -46,7 +46,7 @@ utils.py
 requirements.txt
 > - Contains the list of dependencies required to run Text-Clustering-with-Top2Vec.ipynb and utils.py
 > 
-Readme.md
+README.md
 > - Contains the instructions for viewing the clustering results
 >
 news_data.csv
