@@ -363,19 +363,16 @@ class Top2Vec:
         return np.array(doc_top), np.array(doc_dist)
     
     
-    def calculate_topic_sizes(self) -> pd.DataFrame:
+    def calculate_topic_sizes(self) -> pd.Series:
         """
             Method to calculate the topic sizes.
 
             Returns
             ----------
-            topic_sizes: pd.DataFrame
+            topic_sizes: pd.Series
                     number of documents belonging to each topic.
         """
-        return pd.Series(self.doc_top).value_counts() \
-                                      .to_frame(name = "count") \
-                                      .reset_index() \
-                                      .rename(columns = {"index": "topic"})
+        return pd.Series(self.doc_top).value_counts()
 
 
     def reorder_topics(self) -> None:
@@ -390,6 +387,20 @@ class Top2Vec:
         old2new = dict(zip(self.topic_sizes.index, range(self.topic_sizes.index.shape[0])))
         self.doc_top = np.array([old2new[i] for i in self.doc_top])
         self.topic_sizes.reset_index(drop=True, inplace=True)
+
+
+    def get_topic_sizes(self) -> pd.DataFrame:
+        """
+            Method to get the topic sizes.
+
+            Returns
+            ----------
+            topic_sizes: pd.DataFrame
+                    number of documents belonging to each topic.
+        """
+        return self.topic_sizes.to_frame(name = "count") \
+                               .reset_index() \
+                               .rename(columns = {"index": "topic"})
         
         
     def get_results(self) -> pd.DataFrame:
