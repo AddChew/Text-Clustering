@@ -3,6 +3,7 @@
 
     Source code adapted from https://github.com/ddangelov/Top2Vec and https://github.com/MaartenGr/BERTopic.
 """
+
 import re
 
 import nltk
@@ -14,6 +15,8 @@ import logging
 
 import numpy as np
 import pandas as pd
+
+import plotly.express as px
 
 from typing import Union, List, Tuple
 
@@ -100,11 +103,11 @@ def process_sentence(sentence) -> List[str]:
 
 def top_n_terms(corpus: Union[List, pd.Series], n: int = 50) -> pd.DataFrame:
     """
-        Function to extract the top n terms from a corpus based on tf-idf scores
+        Function to extract the top n terms from a corpus based on tf-idf scores.
 
         Args
         ----------
-        corpus: list or pandas series of strings
+        corpus: list or pd.Series of strings
                 input corpus.
 
         n: int (Optional, default 50)
@@ -136,6 +139,48 @@ def top_n_terms(corpus: Union[List, pd.Series], n: int = 50) -> pd.DataFrame:
         [(vocab[idx], avg_scores[idx]) for idx in top_n_indexes],
         columns = ["term", "score"],
     ).sort_values(by = ["score"], ascending = True, ignore_index = True)
+
+
+
+def get_topic_info(topNterms: pd.DataFrame, summary: pd.DataFrame, topic: int) -> None:
+    """
+        Function to plot the top n terms and print out the top 10 sentences from a topic.
+
+        Args
+        ----------
+        topNterms: pd.DataFrame
+                top n terms from each topic.
+
+        summary: pd.DataFrame
+                top 10 sentences from each topic.
+
+        topic: int
+                topic number.
+
+        Returns
+        ----------
+        None
+    """
+    query = f"topic == {topic}"
+    
+    # Get summary for topic
+    topic_summary = summary.query(query)
+
+    # Get top n terms for topic
+    top_n_terms_topic = topNterms.query(query).sort_values(by = "score", ascending = True)
+
+    # Visualize the top 15 terms in the topic
+    fig = px.bar(top_n_terms_topic, 
+                 x="score", y="term",
+                 orientation="h",
+                 title=f"<b>Top 15 Terms in Topic {topic}<b>",
+                 labels={"term": "Term", "score": "TF-IDF Score"})
+    fig.show()
+
+    # Print out the top 10 sentences most representative of the topic
+    print("\033[1m" + "Top 10 Sentences:\n" + "\033[0m")
+    for doc in topic_summary.document:
+        print(doc + "\n")
 
 
 
