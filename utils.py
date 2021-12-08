@@ -33,6 +33,7 @@ from sentence_transformers import SentenceTransformer
 
 # Download the necesary resources from nltk
 nltk.download('punkt')
+nltk.download('stopwords')
 
 # Declare constants
 NAME = "top2vec"
