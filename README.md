@@ -30,7 +30,7 @@ $ jupyter notebook
 #### To view the HTML version of the clustering results:
 - Open Text-Clustering-with-Top2Vec.html in your browser.
 #### To view the helper scripts used in Text-Clustering-with-Top2Vec.ipynb:
-- Navigate to and open utils.py.
+- Navigate to and open top2vec.py.
 
 ## Files
 Text-Clustering-with-Top2Vec.ipynb
@@ -39,11 +39,11 @@ Text-Clustering-with-Top2Vec.ipynb
 Text-Clustering-with-Top2Vec.html
 > - HTML version of Text-Clustering-with-Top2Vec.ipynb
 > 
-utils.py
+top2vec.py
 > - Contains helper classes and functions for clustering the news dataset
 > 
 requirements.txt
-> - Contains the list of dependencies required to run Text-Clustering-with-Top2Vec.ipynb and utils.py
+> - Contains the list of dependencies required to run Text-Clustering-with-Top2Vec.ipynb and top2vec.py
 > 
 README.md
 > - Contains the instructions for viewing the clustering results
