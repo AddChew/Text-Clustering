@@ -237,10 +237,10 @@ class Top2Vec:
         """
         # Validate documents
         if not isinstance(documents, (list, pd.Series)):
-            raise TypeError("documents need to a list or pandas series of strings.")
+            raise TypeError("documents needs to be a list or pandas series of strings.")
             
         if not all(isinstance(document, str) for document in documents):
-            raise TypeError("documents need to a list or pandas series of strings.")
+            raise TypeError("documents needs to be a list or pandas series of strings.")
         
         columns = ["document"]
         if isinstance(documents, list):
